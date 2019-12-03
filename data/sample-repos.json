@@ -1,0 +1,11 @@
+[
+    {
+        "name": "Sample Project Name",
+        "ssh": "git@github.com:Sample/sample-project-name.git",
+        "location": "/ptah/on/local/disc/to/sample-project-name",
+        "projects": [
+            ".",
+            "subpackage/path"
+        ]
+    }
+]
