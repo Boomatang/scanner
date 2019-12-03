@@ -10,12 +10,9 @@ def main():
     start_files()
     print("Load data from file")
     data = get_data(DATA_FILE)
-    print(data)
     for item in data:
-        project_list.append(item['name'])
         run(item)
     print("All scans complete")
-    print(project_list)
 
 
 def run(item):

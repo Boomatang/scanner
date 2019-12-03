@@ -8,6 +8,7 @@ ROOT = os.getcwd()
 GIT_FILE = "out/git-log.txt"
 SCAN_FILE = "out/srcclr-log.txt"
 
+
 class DotDict(dict):
     """dot.notation access to dictionary attributes"""
     __getattr__ = dict.get
