@@ -1,0 +1,5 @@
+out/
+.idea
+.vscode
+data
+__pycache__
