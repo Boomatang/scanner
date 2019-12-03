@@ -1,14 +1,16 @@
 import subprocess
+import threading
 
 from ults import write_status, get_message, DotDict, GIT_FILE
-
+git_lock = threading.Lock()
 
 def do_git_work(item):
     data_message = ''
     data_message += update_repo(item)
     data_message += remove_repo_tags(item)
+    git_lock.acquire()
     write_status(item['name'], item['location'], data_message, GIT_FILE)
-
+    git_lock.release()
 
 def update_repo(data):
     data_message = ''
