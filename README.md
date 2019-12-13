@@ -12,7 +12,7 @@ Each repo should follow the following structure.
     "ssh": "git@github.com:Sample/sample-project-name.git",
     "location": "/ptah/on/local/disc/to/sample-project-name",
     "projects": [
-        ".",
+        ".", <-- scan the root of the project
         "subpackage/path"
         ]
 }
@@ -30,3 +30,4 @@ To run the project.
 ```bash
 python main.py
 ```
+
