@@ -1,12 +1,14 @@
 import queue
 import threading
+import os
 
 from git import do_git_work
+from npm import workaround_npm_cache
 from scan import do_scan_work
 from ults import start_files, get_data, change_working_dir
 
 project_list = []
-DATA_FILE = "data/repos.json"
+DATA_FILE = os.environ.get("SC_REPO_CONFIG") or "data/repos.json"
 WORKER_THREADS = 8
 task_queue = queue.Queue()
 threads = []
@@ -16,6 +18,7 @@ def main():
     start_files()
     print("Load data from file")
     data = get_data(DATA_FILE)
+    workaround_npm_cache(data)
     action(data)
     print("All scans complete")
 

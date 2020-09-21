@@ -11,6 +11,8 @@ Each repo should follow the following structure.
     "name": "Sample Project Name",
     "ssh": "git@github.com:Sample/sample-project-name.git",
     "location": "/ptah/on/local/disc/to/sample-project-name",
+    "npm": true, // optional flag
+    "in_go_path": true, // optional flag, information only
     "projects": [
         ".", <-- scan the root of the project
         "subpackage/path"
