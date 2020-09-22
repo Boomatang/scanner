@@ -78,3 +78,10 @@ def get_data(filename):
 def change_working_dir(data):
     os.chdir(data['location'])
     print(f"Current working DIR {os.getcwd()}")
+
+
+def get_project_path(project, root):
+    if project == '.':
+        return Path(root)
+    else:
+        return Path(root, project)

@@ -3,6 +3,8 @@ import threading
 import os
 
 from git import do_git_work
+from gradle import gradle_clean
+from mvn import mvn_clean
 from npm import workaround_npm_cache
 from scan import do_scan_work
 from ults import start_files, get_data, change_working_dir
@@ -19,6 +21,8 @@ def main():
     print("Load data from file")
     data = get_data(DATA_FILE)
     workaround_npm_cache(data)
+    mvn_clean(data)
+    gradle_clean(data)
     action(data)
     print("All scans complete")
 
