@@ -1,3 +1,4 @@
+import os
 import shutil
 import subprocess
 
@@ -15,6 +16,7 @@ def workaround_npm_cache(raw_data):
             for project in data['projects']:
                 path = Path(data['location'], project)
                 remove_node_modules(path)
+                package_lock_action(data, path)
 
     if reset:
         message += reset_npm_cache()
@@ -25,12 +27,28 @@ def workaround_npm_cache(raw_data):
         return message
 
 
+def package_lock_action(data, path):
+    try:
+        if data['remove_package_lock']:
+            remove_package_lock(path)
+    except KeyError:
+        pass
+
+
+def remove_package_lock(path):
+    package_lock = Path(path, 'package-lock.json')
+    print('Checking for package lock')
+    if package_lock.exists():
+        print(f'removing {package_lock}')
+        os.remove(package_lock)
+
+
 def remove_node_modules(path):
-    dir = Path(path, 'node_modules')
+    node_modules = Path(path, 'node_modules')
     print("Checking node_modules folder")
-    if dir.exists():
+    if node_modules.exists():
         print(f"Removing node_modules folder from {path}")
-        shutil.rmtree(dir)
+        shutil.rmtree(node_modules)
 
 
 def reset_npm_cache():

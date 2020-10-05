@@ -23,7 +23,7 @@ def main():
     workaround_npm_cache(data)
     mvn_clean(data)
     gradle_clean(data)
-    action(data)
+    run_scans(data)
     print("All scans complete")
 
 
@@ -43,7 +43,7 @@ def worker():
         task_queue.task_done()
 
 
-def action(data):
+def run_scans(data):
     for _ in range(WORKER_THREADS):
         thread = threading.Thread(target=worker)
         thread.start()
