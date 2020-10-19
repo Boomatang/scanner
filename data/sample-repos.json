@@ -1,4 +1,8 @@
 {
+  "reports": {
+    "csvDir": "data/samples",
+    "database": "out/test_database.sqlite"
+  },
   "repos": [
     {
       "name": "Tutorial Web App Walkthroughs",
