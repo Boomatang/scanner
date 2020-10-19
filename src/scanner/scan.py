@@ -2,7 +2,7 @@ import subprocess
 import threading
 from pathlib import Path
 
-from ults import write_status, get_message, SCAN_FILE
+from src.scanner.ults import write_status, get_message, SCAN_FILE
 
 scan_lock = threading.Lock()
 
