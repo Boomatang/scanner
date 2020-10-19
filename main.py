@@ -2,15 +2,16 @@ import queue
 import threading
 import os
 
-from git import do_git_work
-from gradle import gradle_clean
-from mvn import mvn_clean
-from npm import workaround_npm_cache
-from scan import do_scan_work
-from ults import start_files, get_data, change_working_dir
+from src.scanner.git import do_git_work
+from src.scanner.gradle import gradle_clean
+from src.scanner.mvn import mvn_clean
+from src.scanner.npm import workaround_npm_cache
+from src.scanner.scan import do_scan_work
+from src.scanner.ults import start_files, get_data, change_working_dir
 
 project_list = []
-DATA_FILE = os.environ.get("SC_REPO_CONFIG") or "data/repos.json"
+DATA_FILE = os.environ.get("SC_REPO_CONFIG") or "data/sample-repos.json"
+# DATA_FILE = "data/sample-repos.json"
 WORKER_THREADS = 8
 task_queue = queue.Queue()
 threads = []
@@ -20,6 +21,7 @@ def main():
     start_files()
     print("Load data from file")
     data = get_data(DATA_FILE)
+    data = data['repos']
     workaround_npm_cache(data)
     mvn_clean(data)
     gradle_clean(data)

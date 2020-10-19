@@ -1,18 +1,18 @@
 import os
 import subprocess
 
-from ults import get_message, get_project_path
+from src.scanner.ults import get_message, get_project_path
 
 
-def gradle_clean(data):
+def mvn_clean(data):
     message = ''
-    print("Starting to clean gradle projects")
+    print("Starting to clean mevan projects")
     current_dir = os.getcwd()
     print(current_dir)
 
     for entry in data:
-        if is_gradle(entry):
-            print(f"Running ./gradlew clean on {entry['name']}")
+        if is_mvn(entry):
+            print(f"Running mvn clean on {entry['name']}")
             message += clean_projects(entry['projects'], entry['location'])
 
     os.chdir(current_dir)
@@ -27,22 +27,22 @@ def clean_projects(projects, root):
             print(f"miss configured project path: {path} ")
             continue
         print(f"starting mvn clean in: {path}")
-        message += run_gradle_clean(path)
+        message += run_nvm_clean(path)
     return message
 
 
-def run_gradle_clean(path):
+def run_nvm_clean(path):
     """Changes to give path and `mvn clean`"""
     os.chdir(path)
-    output = subprocess.run(['./gradlew', 'clean'], capture_output=True)
-    message = get_message(output, f"Output from `./gradlew clean` in {path}")
+    output = subprocess.run(['mvn', 'clean'], capture_output=True)
+    message = get_message(output, f"Output from `nvm clean` in {path}")
 
     return message
 
 
-def is_gradle(data):
+def is_mvn(data):
     try:
-        if data['gradle']:
+        if data['mevan']:
             return True
         else:
             return False
