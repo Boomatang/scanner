@@ -78,11 +78,20 @@ def issue_status_change(row):
         return False
 
 
+@db_session
+def issue_severity_change(row):
+    value = Vulnerability.get(issue_id=row[Issue.issue_id])
+    if row[Issue.severity] != value.severity and convert_to_datetime(row[Issue.scan_date]) > value.scan_date:
+        return True
+    else:
+        return False
+
+
 def save_file_contents_to_db(reader: csv.DictReader):
     for row in reader:
         if not issue_in_db(row):
             save_row_to_db(row)
-        elif issue_status_change(row):
+        elif issue_status_change(row) or issue_severity_change(row):
             update_issue_if_required(row)
         else:
             # print("existing issue")
@@ -96,6 +105,12 @@ def update_issue_if_required(row):
     if value.status == Issue.open \
             and row[Issue.status] == Issue.resolved:
         update_resolved_issue_in_db(row, value)
+    elif row[Issue.severity] != value.severity:
+        value.severity = row[Issue.severity]
+        value.cvss_score = row[Issue.cvss_score]
+        db.commit()
+        print("severity updated")
+
     elif value.issue_opened_scan_id == int(row[Issue.issue_opened_scan_id]):
         print(f"{value.project}: {value.vulnerability_id}: previously updated")
     else:
