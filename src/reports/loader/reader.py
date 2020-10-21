@@ -2,7 +2,7 @@ import csv
 import os
 from pathlib import Path
 
-from src.reports.model.models import save_file_contents_to_db
+from src.reports.model.functions import save_file_contents_to_db
 
 
 def load_csv_data(csv_folder):
@@ -19,3 +19,7 @@ def read_csv(path):
     with open(path, encoding="utf-8-sig") as csvfile:
         reader = csv.DictReader(csvfile)
         save_file_contents_to_db(reader)
+
+
+def run(data):
+    load_csv_data(data)

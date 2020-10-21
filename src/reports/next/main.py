@@ -1,0 +1,74 @@
+from datetime import datetime
+
+from pony.orm import desc
+
+from src.reports.model import Report, db_session, db, Vulnerability
+from src.reports.utils import Issue, Severity
+
+temp_date1 = datetime(year=2020, month=10, day=10, hour=10, minute=0)
+temp_date2 = datetime(year=2020, month=9, day=20, hour=10, minute=0)
+
+
+def add_temp_report():
+    Report(total_open=147, new_open=0, new_closed=0, severity_high=11, severity_medium=124, severity_low=12, date=temp_date1)
+    Report(total_open=147, new_open=0, new_closed=0, severity_high=11, severity_medium=124, severity_low=12, date=temp_date2)
+    db.commit()
+
+
+def find_new_open_vulnerability_after_date(date):
+    vs = Vulnerability.select(lambda v: v.issue_opened_scan_date > date)
+    print(f"new open issues {len(vs)}")
+    return len(vs)
+
+
+def find_new_closed_vulnerability_after_date(date):
+    vs = Vulnerability.select(lambda v: v.issue_fixed_scan_date > date)
+    print(f"new closed issues {len(vs)}")
+    return len(vs)
+
+
+def find_open_vulnerabilities(severity=None):
+    if severity is None:
+        vs = Vulnerability.select(lambda v: v.status == Issue.open)
+        print(f"total open issues {len(vs)}")
+    else:
+        vs = Vulnerability.select(lambda v: v.status == Issue.open and v.severity == severity)
+        print(f"severity level {severity} open issues {len(vs)}")
+    return len(vs)
+
+
+@db_session
+def run():
+    print("we are taken action")
+
+    # set up for testing
+    # if Report.get(date=temp_date1) is None:
+    #     add_temp_report()
+
+    report = Report.select().sort_by(desc(Report.date)).first()
+    # report = Report.get(date=temp_date1)
+    if report is not None:
+        opened = find_new_open_vulnerability_after_date(report.date)
+        closed = find_new_closed_vulnerability_after_date(report.date)
+    else:
+        opened = 0
+        closed = 0
+    total = find_open_vulnerabilities()
+    high = find_open_vulnerabilities(Severity.high)
+    medium = find_open_vulnerabilities(Severity.medium)
+    low = find_open_vulnerabilities(Severity.low)
+    Report(total_open=total,
+           new_open=opened,
+           new_closed=closed,
+           severity_high=high,
+           severity_medium=medium,
+           severity_low=low,
+           date=datetime.now())
+    db.commit()
+
+    if report is not None:
+        print(f"Change in high: {high-report.severity_high}")
+        print(f"Change in medium: {medium-report.severity_medium}")
+        print(f"Change in low: {low-report.severity_low}")
+    else:
+        print("No previous report to compare with")

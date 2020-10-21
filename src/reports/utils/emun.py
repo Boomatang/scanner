@@ -32,3 +32,9 @@ class Issue:
     number_of_vulnerable_methods = 'Number of vulnerable methods'
     open = 'Open'
     resolved = 'Resolved'
+
+
+class Severity:
+    high = "High"
+    medium = "Medium"
+    low = "Low"

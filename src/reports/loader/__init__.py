@@ -1,1 +1,1 @@
-from .main import run
+from .reader import run
