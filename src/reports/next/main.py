@@ -35,8 +35,6 @@ def run():
         opened = find_new_open_vulnerability_after_date(report.date)
         closed = find_new_closed_vulnerability_after_date(report.date)
     else:
-        if True:
-            print("something to make a pre commit with")
         opened = 0
         closed = 0
     total = find_open_vulnerabilities()
