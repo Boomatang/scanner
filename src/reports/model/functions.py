@@ -117,3 +117,5 @@ def update_issue_if_required(row):
         print("ERROR")
         print(f"There is some thing else going on here: {value.project}: {value.vulnerability_id}")
         print(f"{value.issue_opened_scan_date} > {convert_to_datetime(row[Issue.issue_opened_scan_date])} : {value.issue_opened_scan_date > convert_to_datetime(row[Issue.issue_opened_scan_date])}")
+
+
