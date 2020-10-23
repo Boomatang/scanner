@@ -40,12 +40,48 @@ class Vulnerability(db.Entity):
     has_vulnerable_methods = Optional(bool)
     number_of_vulnerable_methods = Optional(int)
 
+    @classmethod
+    def severity_issues(cls, severity, project_id=None):
+        if project_id is not None:
+            return cls.select(lambda v: v.status == Issue.open
+                              and v.project_id == project_id
+                              and v.severity == severity).count()
+        else:
+            return cls.select(lambda v: v.status == Issue.open
+                              and v.severity == severity).count()
 
-class File(db.Entity):
-    id = PrimaryKey(int, auto=True)
-    name = Optional(str, unique=True)
-    date = Optional(datetime)
-    path = Optional(str)
+    @classmethod
+    def new_open_vulnerability_after_date(cls, date=None, project_id=None):
+        if date is not None:
+            if project_id is not None:
+                vs = cls.select(lambda v: v.issue_opened_scan_date > date and v.project_id == project_id)
+            else:
+                vs = cls.select(lambda v: v.issue_opened_scan_date > date)
+            return len(vs)
+        else:
+            return 0
+
+    @classmethod
+    def new_closed_vulnerability_after_date(cls, date=None, project_id=None):
+        if date is not None:
+            if project_id is not None:
+                vs = cls.select(lambda v: v.issue_fixed_scan_date > date and v.project_id == project_id)
+            else:
+                vs = cls.select(lambda v: v.issue_fixed_scan_date > date)
+            return len(vs)
+        else:
+            return 0
+
+    @classmethod
+    def open_vulnerabilities(cls, severity=None, project_id=None):
+        if severity is None:
+            if project_id is not None:
+                return cls.select(lambda v: v.status == Issue.open
+                                                       and v.project_id == project_id).count()
+            else:
+                return cls.select(lambda v: v.status == Issue.open).count()
+        else:
+            return cls.severity_issues(severity, project_id)
 
 
 class Record(db.Entity):
@@ -58,47 +94,12 @@ class Record(db.Entity):
     severity_low = Optional(int)
 
     def config(self, date=None, project_id=None):
-        self.new_closed_vulnerability_after_date(date, project_id)
-        self.new_open_vulnerability_after_date(date, project_id)
-        self.open_vulnerabilities(project_id=project_id)
-        self.open_vulnerabilities(severity=Severity.high, project_id=project_id)
-        self.open_vulnerabilities(severity=Severity.medium, project_id=project_id)
-        self.open_vulnerabilities(severity=Severity.low, project_id=project_id)
-
-    def new_open_vulnerability_after_date(self, date=None, project_id=None):
-        if date is not None:
-            if project_id is not None:
-                vs = Vulnerability.select(lambda v: v.issue_opened_scan_date > date and v.project_id == project_id)
-            else:
-                vs = Vulnerability.select(lambda v: v.issue_opened_scan_date > date)
-            self.new_open = len(vs)
-        else:
-            self.new_open = 0
-
-    def new_closed_vulnerability_after_date(self, date=None, project_id=None):
-        if date is not None:
-            if project_id is not None:
-                vs = Vulnerability.select(lambda v: v.issue_fixed_scan_date > date and v.project_id == project_id)
-            else:
-                vs = Vulnerability.select(lambda v: v.issue_fixed_scan_date > date)
-            self.new_closed = len(vs)
-        else:
-            self.new_closed = 0
-
-    def open_vulnerabilities(self, severity=None, project_id=None):
-        if severity is None:
-            if project_id is not None:
-                self.total_open = Vulnerability.select(lambda v: v.status == Issue.open
-                                                       and v.project_id == project_id).count()
-            else:
-                self.total_open = Vulnerability.select(lambda v: v.status == Issue.open).count()
-        else:
-            if severity == Severity.high:
-                self.severity_high = severity_issues(severity, project_id)
-            elif severity == Severity.medium:
-                self.severity_medium = severity_issues(severity, project_id)
-            elif severity == Severity.low:
-                self.severity_low = severity_issues(severity, project_id)
+        self.new_closed = Vulnerability.new_closed_vulnerability_after_date(date, project_id)
+        self.new_open = Vulnerability.new_open_vulnerability_after_date(date, project_id)
+        self.total_open = Vulnerability.open_vulnerabilities(project_id=project_id)
+        self.severity_high = Vulnerability.open_vulnerabilities(severity=Severity.high, project_id=project_id)
+        self.severity_medium = Vulnerability.open_vulnerabilities(severity=Severity.medium, project_id=project_id)
+        self.severity_low = Vulnerability.open_vulnerabilities(severity=Severity.low, project_id=project_id)
 
 
 class Report(Record):
@@ -125,13 +126,3 @@ class Project(Record):
     name = Optional(str)
     project_id = Optional(int)
     report = Required(Report)
-
-
-def severity_issues(severity, project_id=None):
-    if project_id is not None:
-        return Vulnerability.select(lambda v: v.status == Issue.open
-                                    and v.project_id == project_id
-                                    and v.severity == severity).count()
-    else:
-        return Vulnerability.select(lambda v: v.status == Issue.open
-                                    and v.severity == severity).count()
