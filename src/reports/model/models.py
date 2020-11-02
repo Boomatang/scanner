@@ -121,6 +121,23 @@ class Report(Record):
                 self.projects.create(project_id=issue.project_id, name=issue.project)
         db.commit()
 
+    def level_diff(self, last_report, level):
+        if last_report is None:
+            return "na"
+        if level == Severity.high:
+            out = self.severity_high - last_report.severity_high
+        elif level == Severity.medium:
+            out = self.severity_medium - last_report.severity_medium
+        elif level == Severity.low:
+            out = self.severity_low - last_report.severity_low
+        else:
+            out = "na"
+
+        if out == 0:
+            out = "--"
+
+        return out
+
 
 class Project(Record):
     name = Optional(str)
