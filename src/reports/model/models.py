@@ -135,11 +135,32 @@ class Report(Record):
 
         if out == 0:
             out = "--"
+        elif out > 0:
+            out = f"+{out}"
 
         return out
+
+    def projects_with_change(self, last_report):
+        output = {'increase': [], 'decrease': []}
+        for project in self.projects:
+            try:
+                last_project = last_report.projects.select(lambda lp: lp.project_id == project.project_id).first()
+                if project.overall_change(last_project) > 0:
+                    output['increase'].append(project.name)
+                elif project.overall_change(last_project) < 0:
+                    output['decrease'].append(project.name)
+            except AttributeError as err:
+                pass
+        return output
 
 
 class Project(Record):
     name = Optional(str)
     project_id = Optional(int)
     report = Required(Report)
+
+    def overall_change(self, last_project):
+        return self.sum_all() - last_project.sum_all()
+
+    def sum_all(self):
+        return self.severity_high + self.severity_medium + self.severity_low
