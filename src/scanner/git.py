@@ -1,7 +1,7 @@
 import subprocess
 import threading
 
-from ults import write_status, get_message, DotDict, GIT_FILE
+from src.scanner.ults import write_status, get_message, DotDict, GIT_FILE
 
 git_lock = threading.Lock()
 

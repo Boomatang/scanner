@@ -4,7 +4,7 @@ import subprocess
 
 from pathlib import Path
 
-from ults import get_message
+from src.scanner.ults import get_message
 
 
 def workaround_npm_cache(raw_data):
