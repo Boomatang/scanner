@@ -104,7 +104,7 @@ def compile_email_body(current_report, last_report):
     body = ""
 
     intro = "<p>Hi everyone.</p><p>Please find attached this weeks SourceClear scan report</p>"
-    summary = f"<p><b>Summary</b><ul><li>Vulnerability Severity: High: {current_report.severity_high} ( {current_report.level_diff(last_report, Severity.high)} )</li><li>Vulnerability Severity: Medium: {current_report.severity_medium} ( {current_report.level_diff(last_report, Severity.medium)} )</li><li>Vulnerability Severity: Low: {current_report.severity_low} ( {current_report.level_diff(last_report, Severity.low)} )</li></ul></p>"
+    summary = f"<p><b>Summary</b><ul><li><font color='red'>Vulnerability Severity: High: </font> {current_report.severity_high} ( {current_report.level_diff(last_report, Severity.high)} )</li><li>Vulnerability Severity: Medium: {current_report.severity_medium} ( {current_report.level_diff(last_report, Severity.medium)} )</li><li>Vulnerability Severity: Low: {current_report.severity_low} ( {current_report.level_diff(last_report, Severity.low)} )</li></ul></p>"
     detailed = detailed_html(current_report, last_report)
     closing = "<p>*** Internal use only ***</p><p>Any work or tickets create from the information shared in this report should only be visible Internally</p><p>Scanning History can be found <a href='https://docs.google.com/document/d/1vne5AMVgYQIFcB4mqeX8magcEzQjRC_4rlH3VeH997I/edit#heading=h.n63e2poehf03'>HERE</a></br>Scanning History graph can be found <a href='https://docs.google.com/spreadsheets/d/13WjJlNIqjA9uESB_C9Qt3BHgEqLtfGOui88Jp2t-so0/edit#gid=0'>HERE</a></p>"
     body += intro
