@@ -2,7 +2,7 @@ import queue
 import threading
 import os
 
-from src.scanner.git import do_git_work
+from src.scanner.git import do_git_work, workaround_git_stash
 from src.scanner.gradle import gradle_clean
 from src.scanner.mvn import mvn_clean
 from src.scanner.npm import workaround_npm_cache
@@ -23,6 +23,7 @@ def main():
     data = get_data(DATA_FILE)
     data = data['repos']
     workaround_npm_cache(data)
+    workaround_git_stash(data)
     mvn_clean(data)
     gradle_clean(data)
     run_scans(data)

@@ -43,3 +43,26 @@ def remove_repo_tags(data):
                 errors += tag_remove.stderr.decode('utf-8')
 
     return get_message(DotDict({'stdout': messages, 'stderr': errors}), "Git Tag Remove")
+
+
+def git_stash(data):
+    print(f"Stashing changes at {data['name']}")
+    messages = ''
+    errors = ''
+    stash = subprocess.run(['git', '-C', data['location'], 'stash'], capture_output=True)
+    if len(stash.stdout) > 0:
+        messages += stash.stdout.decode('utf-8')
+
+    if len(stash.stderr) > 0:
+        errors += stash.stderr.decode('utf-8')
+
+    return get_message(DotDict({'stdout': messages, 'stderr': errors}), "Git Stash")
+
+
+def workaround_git_stash(raw_data):
+    result = ''
+    for data in raw_data:
+        if 'git stash' in data and data['git stash']:
+            print(f"{data['name']} ->> git stash work around")
+            result += git_stash(data)
+    return result
