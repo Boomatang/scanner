@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 from src.reports import loader, next, utils
-from src.reports.model import connect_to_database, Project, db, db_session
+from src.reports.model import connect_to_database, manage_new_projects_text
 from src.scanner.ults import get_data
 
 from bullet import Bullet
@@ -15,21 +15,20 @@ data = get_data(DATA_FILE)
 data = data['reports']
 connect_to_database(Path(os.getcwd(), data['database']))
 
-step1 = 'Load scan csv files'
-step2 = 'Manage new projects'
-step3 = 'Generate Report'
-EXIT = "Quit"
-
-cli = Bullet(prompt="Select task", choices=[step1, step2, step3, EXIT])
-
 if dev:
-    next.run()
+    print(manage_new_projects_text())
 
     exit(0)
 
 # Cli loop
 while True:
+    step1 = 'Load scan csv files'
+    step2 = manage_new_projects_text()
+    step3 = 'Generate Report'
+    EXIT = "Quit"
+
     utils.clear()
+    cli = Bullet(prompt="Select task", choices=[step1, step2, step3, EXIT])
     result = cli.launch()
     if result is step1:
         loader.run(data['csvDir'])

@@ -4,7 +4,7 @@ from bullet import Bullet
 from pony.orm import desc
 
 from src.reports import utils
-from src.reports.model import OverviewReport, db_session, db, Severity, Project, ProjectReport, report_enties
+from src.reports.model import OverviewReport, db_session, db, Severity, Project, ProjectReport, report_entries
 import subprocess
 
 mailing_list = 'Source Clear Scans <Source Clear Scans>'
@@ -53,7 +53,7 @@ def run_project_reports():
     if len(projects) > 0:
         print(f"running reports for {len(projects)} projects")
         for project in projects:
-            high, medium, low = report_enties(project)
+            high, medium, low = report_entries(project)
             report = ProjectReport(project=project)
             report.severity_high = high
             report.severity_medium = medium

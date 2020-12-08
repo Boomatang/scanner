@@ -2,7 +2,7 @@ import csv
 
 from pony.orm import db_session
 
-from src.reports.model.models import db, Vulnerability, Project
+from src.reports.model import db, Vulnerability, Project
 from src.reports.utils.emun import Issue, Severity
 from src.reports.utils.utils import convert_to_datetime, int_check, is_public
 
@@ -136,7 +136,7 @@ def update_issue_if_required(row):
               f"{value.issue_opened_scan_date > convert_to_datetime(row[Issue.issue_opened_scan_date])}")
 
 
-def report_enties(project):
+def report_entries(project):
     high = 0
     medium = 0
     low = 0
@@ -150,3 +150,18 @@ def report_enties(project):
             elif vulnerability.severity == Severity.low:
                 low += 1
     return high, medium, low
+
+
+@db_session
+def manage_new_projects_text():
+    output = 'Manage new projects'
+
+    projects = Project.select()
+
+    if projects.filter(status="Skip").count() > 0:
+        output += f", Skipped: {projects.filter(status='Skip').count()}"
+
+    if projects.filter(status="New").count() > 0:
+        output += f", New: {projects.filter(status='New').count()}"
+
+    return output
