@@ -1,6 +1,4 @@
-import os
 from datetime import datetime
-from subprocess import call
 
 
 def int_check(value):
@@ -24,9 +22,3 @@ def is_public(value):
         return True
     else:
         return False
-
-
-# define clear function
-def clear():
-    # check and make call for specific operating system
-    _ = call('clear' if os.name =='posix' else 'cls')

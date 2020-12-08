@@ -45,7 +45,7 @@ class Vulnerability(db.Entity):
 
 class Record(db.Entity):
     id = PrimaryKey(int, auto=True)
-    date = Required(datetime, default=datetime.now())
+    date = Required(datetime)
     severity_high = Optional(int, default=0)
     severity_medium = Optional(int, default=0)
     severity_low = Optional(int, default=0)

@@ -3,7 +3,6 @@ from datetime import datetime
 from bullet import Bullet
 from pony.orm import desc
 
-from src.reports import utils
 from src.reports.model import OverviewReport, db_session, db, Severity, Project, ProjectReport, report_entries
 import subprocess
 
@@ -26,7 +25,7 @@ def project_status():
         projects = Project.select(lambda p: p.status == "New" or p.status == "Skip")
         if len(projects) > 0:
             for project in projects:
-                utils.clear()
+                print()
                 prompt = Bullet(prompt=f"Run reports for {project.project}, Current status: {project.status}",
                                 choices=['Include', 'Exclude', 'Skip'])
                 result = prompt.launch()
@@ -54,7 +53,7 @@ def run_project_reports():
         print(f"running reports for {len(projects)} projects")
         for project in projects:
             high, medium, low = report_entries(project)
-            report = ProjectReport(project=project)
+            report = ProjectReport(project=project, date=datetime.now())
             report.severity_high = high
             report.severity_medium = medium
             report.severity_low = low
@@ -82,13 +81,13 @@ def run():
     projects = projects_to_be_reported_on()
 
     if projects is not None:
-        current_report = OverviewReport()
+        last_report = OverviewReport.select().sort_by(desc(OverviewReport.date)).first()
+        current_report = OverviewReport(date=datetime.now())
+
         for project in projects:
             current_report.project_reports.add(project.latest_report())
         current_report.compile_totals()
         db.commit()
-
-        last_report = OverviewReport.select().sort_by(desc(OverviewReport.date)).first()
 
         print_summary_report(current_report, last_report)
         email_creation(current_report, last_report)

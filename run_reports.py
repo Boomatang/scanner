@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from src.reports import loader, next, utils
+from src.reports import loader, next
 from src.reports.model import connect_to_database, manage_new_projects_text
 from src.scanner.ults import get_data
 
@@ -26,8 +26,7 @@ while True:
     step2 = manage_new_projects_text()
     step3 = 'Generate Report'
     EXIT = "Quit"
-
-    utils.clear()
+    print()
     cli = Bullet(prompt="Select task", choices=[step1, step2, step3, EXIT])
     result = cli.launch()
     if result is step1:
