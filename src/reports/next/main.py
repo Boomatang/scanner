@@ -1,8 +1,9 @@
 from datetime import datetime
 
+from bullet import Bullet
 from pony.orm import desc
 
-from src.reports.model import Report, db_session, db, Severity
+from src.reports.model import OverviewReport, db_session, db, Severity, Project, ProjectReport, report_entries
 import subprocess
 
 mailing_list = 'Source Clear Scans <Source Clear Scans>'
@@ -19,17 +20,80 @@ def get_date():
 
 
 @db_session
-def run():
-    last_report = Report.select().sort_by(desc(Report.date)).first()
+def project_status():
+    with db_session:
+        projects = Project.select(lambda p: p.status == "New" or p.status == "Skip")
+        if len(projects) > 0:
+            for project in projects:
+                print()
+                prompt = Bullet(prompt=f"Run reports for {project.project}, Current status: {project.status}",
+                                choices=['Include', 'Exclude', 'Skip'])
+                result = prompt.launch()
+                project.status = result
+            db.commit()
 
-    current_report = Report(date=datetime.now())
-    db.commit()
-    if last_report is not None:
-        current_report.config(last_report.date)
+
+def skipped_projects_note():
+    projects = Project.select(lambda p: p.status == 'Skip')
+    if len(projects) > 0:
+        print(f"{len(projects)} projects are been skipped")
+        for project in projects:
+            print(f"\t{project.project}")
+
+
+def exclude_projects_note():
+    projects = Project.select(lambda p: p.status == 'Exclude')
+    if len(projects) > 0:
+        print(f"{len(projects)} projects are been excluded")
+
+
+def run_project_reports():
+    projects = Project.select()
+    if len(projects) > 0:
+        print(f"running reports for {len(projects)} projects")
+        for project in projects:
+            high, medium, low = report_entries(project)
+            report = ProjectReport(project=project, date=datetime.now())
+            report.severity_high = high
+            report.severity_medium = medium
+            report.severity_low = low
+        db.commit()
     else:
-        current_report.config()
+        print("no reports found")
 
-    print_summary_report(current_report, last_report)
+
+def projects_to_be_reported_on():
+    projects = Project.select(lambda p: p.status == 'Include')
+    if len(projects) > 0:
+        print(f"{len(projects)} projects are been report on")
+        return projects
+
+
+@db_session
+def run():
+
+    run_project_reports()
+
+    # Finial report is below
+    skipped_projects_note()
+    exclude_projects_note()
+
+    projects = projects_to_be_reported_on()
+
+    if projects is not None:
+        last_report = OverviewReport.select().sort_by(desc(OverviewReport.date)).first()
+        current_report = OverviewReport(date=datetime.now())
+
+        for project in projects:
+            current_report.project_reports.add(project.latest_report())
+        current_report.compile_totals()
+        db.commit()
+
+        print_summary_report(current_report, last_report)
+        email_creation(current_report, last_report)
+
+
+def email_creation(current_report, last_report):
     email_body = compile_email_body(current_report, last_report)
     print(email_body)
     subject = f"SourceClear -- Scan Date {get_date()}"
@@ -40,7 +104,7 @@ def print_summary_report(current_report, last_report):
     print()
     try:
         if last_report is not None:
-            print(f"Number of projects: {current_report.projects.count()}")
+            print(f"Number of projects: {current_report.project_reports.count()}")
             print(f"Change in high: {current_report.severity_high-last_report.severity_high}")
             print(f"Change in medium: {current_report.severity_medium-last_report.severity_medium}")
             print(f"Change in low: {current_report.severity_low-last_report.severity_low}")
