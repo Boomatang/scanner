@@ -2,8 +2,8 @@ import csv
 
 from pony.orm import db_session
 
-from src.reports.model.models import db, Vulnerability
-from src.reports.utils.emun import Issue
+from src.reports.model.models import db, Vulnerability, Project
+from src.reports.utils.emun import Issue, Severity
 from src.reports.utils.utils import convert_to_datetime, int_check, is_public
 
 
@@ -34,8 +34,24 @@ def issue_in_db(row):
 
 
 @db_session
+def project_in_db(project_id):
+    value = Project.get(project_id=project_id)
+    if value is not None:
+        return True
+    else:
+        return False
+
+
+@db_session
 def save_row_to_db(row):
-    entry = Vulnerability()
+    if project_in_db(row['Project ID']):
+        project = Project.get(project_id=row['Project ID'])
+    else:
+        project = Project()
+        project.project = row['Project']
+        project.project_id = row['Project ID']
+
+    entry = Vulnerability(project=project)
     entry.issue_id = row['Issue ID']
     entry.ignored = row['Ignored']
     entry.status = row['Status']
@@ -48,7 +64,7 @@ def save_row_to_db(row):
     entry.coordinate2 = row['Coordinate 2']
     entry.latest_version = row['Latest version']
     entry.latest_release_data = convert_to_datetime(row['Latest release date'])
-    entry.project = row['Project']
+    entry.project_name = row['Project']
     entry.branch = row['Branch']
     entry.tag = row['Tag']
     entry.issue_opened_scan_id = row['Issue opened: Scan ID']
@@ -112,10 +128,25 @@ def update_issue_if_required(row):
         print("severity updated")
 
     elif value.issue_opened_scan_id == int(row[Issue.issue_opened_scan_id]):
-        print(f"{value.project}: {value.vulnerability_id}: previously updated")
+        print(f"{value.project_name}: {value.vulnerability_id}: previously updated")
     else:
         print("ERROR")
         print(f"There is some thing else going on here: {value.project}: {value.vulnerability_id}")
-        print(f"{value.issue_opened_scan_date} > {convert_to_datetime(row[Issue.issue_opened_scan_date])} : {value.issue_opened_scan_date > convert_to_datetime(row[Issue.issue_opened_scan_date])}")
+        print(f"{value.issue_opened_scan_date} > {convert_to_datetime(row[Issue.issue_opened_scan_date])} : "
+              f"{value.issue_opened_scan_date > convert_to_datetime(row[Issue.issue_opened_scan_date])}")
 
 
+def report_enties(project):
+    high = 0
+    medium = 0
+    low = 0
+
+    for vulnerability in project.vulnerabilities:
+        if vulnerability.status == "Open":
+            if vulnerability.severity == Severity.high:
+                high += 1
+            elif vulnerability.severity == Severity.medium:
+                medium += 1
+            elif vulnerability.severity == Severity.low:
+                low += 1
+    return high, medium, low
