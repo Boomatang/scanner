@@ -1,7 +1,7 @@
 from datetime import datetime
 from pony.orm import *
 
-from src.reports.utils import Severity
+from src.utils import Severity
 
 db = Database()
 

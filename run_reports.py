@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 from src.reports import loader, next
-from src.reports.model import connect_to_database, manage_new_projects_text
+from src.model import connect_to_database, manage_new_projects_text
 from src.scanner.ults import get_data
 
 from bullet import Bullet
@@ -37,4 +37,3 @@ while True:
         next.run()
     elif result is EXIT:
         exit(0)
-
