@@ -85,12 +85,14 @@ class OverviewReport(Record):
             try:
                 last_project = last_report.project_reports.select(
                     lambda lp: lp.project == project.project).first()
-                if project.overall_change(last_project) > 0:
-                    output['increase'].append(project.name)
-                elif project.overall_change(last_project) < 0:
-                    output['decrease'].append(project.name)
+                overall_change = project.overall_change(last_project)
+                if overall_change > 0:
+                    output['increase'].append(project.project.project)
+                elif overall_change < 0:
+                    output['decrease'].append(project.project.project)
             except AttributeError as err:
-                pass
+                print(f"projects_with_change: {err}")
+                output['increase'].append(project.project.project)
         return output
 
 
