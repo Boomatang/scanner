@@ -42,6 +42,12 @@ class Vulnerability(db.Entity):
     project = Required('Project')
     jira = Optional('Jira')
 
+    def summary(self):
+        output = f"\nProject: {self.project_name}\n"
+        output += f"Issue: {self.title}\n"
+        output += f"CVE: {self.cve}, Severity: {self.severity}\n"
+        return output
+
 
 class Record(db.Entity):
     id = PrimaryKey(int, auto=True)
@@ -126,3 +132,9 @@ class Jira(db.Entity):
     link = Optional(str)
     vulnerabilities = Set(Vulnerability)
     project = Required(Project)
+
+    def open_issues(self):
+        return self.vulnerabilities.select(lambda v: v.status == "Open")
+
+    def open_high_severity_issues(self):
+        return self.vulnerabilities.select(lambda v: v.status == "Open" and v.severity == Severity.high)
