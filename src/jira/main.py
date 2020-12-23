@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+from tabulate import tabulate
+
 from src.model import Jira, Vulnerability, connect_to_database, db_session, desc, db
 from src.scanner.ults import get_data
 from src.utils import Severity
@@ -79,6 +81,35 @@ def add_issue_to_jira(issue, value):
             db.commit()
 
 
+@db_session
+def current_jiras_table(severity=None):
+    """prints a list of all jiras with high severity issues
+    Some details show is the Jira link, Project name & number of high issues
+    """
+    if severity is not None:
+        level = f"{severity.capitalize()} Severity Count"
+    else:
+        level = "Total Count"
+
+    jiras = jiras_with_open_issues(severity=severity)
+    table_header = ["JIRA", "Project", level]
+    table_data = []
+    for jira in jiras:
+        table_data.append((jira.link, jira.project.project, jira.open_high_severity_issues().count()))
+
+    table_data = sorted(table_data, key=lambda tup: tup[2])
+    table_data.reverse()
+    table = tabulate(table_data, table_header)
+    print(table)
+
+
+@db_session
+def menu_jira_table(text, severity=None):
+    """Create a sting to be use in a menu"""
+    jira_count = jiras_with_open_issues(severity=severity).count()
+    return text + str(jira_count)
+
+
 if __name__ == "__main__":
     DATA_FILE = "../../data/sample-repos.json"
     data = get_data(DATA_FILE)
@@ -89,4 +120,6 @@ if __name__ == "__main__":
     connect_to_database(location)
 
     overview()
-    add_jiras()
+    # add_jiras()
+    current_jiras_table(severity=Severity.high)
+    print(menu_jira_table(text="Number of Jiras: "))
