@@ -8,7 +8,7 @@
       "name": "Tutorial Web App Walkthroughs",
       "ssh": "git@github.com:integr8ly/tutorial-web-app-walkthroughs.git",
       "npm": true,
-      "location": "/home/jimfitz/SourceClear/repos/github.com/integr8ly/tutorial-web-app-walkthroughs",
+      "location": "/home/jimfitz/VaraCode/repos/github.com/integr8ly/tutorial-web-app-walkthroughs",
       "projects": [
         "."
       ]
