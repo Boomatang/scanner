@@ -2,7 +2,7 @@ import csv
 import os
 from pathlib import Path
 
-from src.reports.model.functions import save_file_contents_to_db
+from src.model.functions import save_file_contents_to_db
 
 
 def load_csv_data(csv_folder):
