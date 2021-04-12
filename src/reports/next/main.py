@@ -3,7 +3,7 @@ from datetime import datetime
 from bullet import Bullet
 from pony.orm import desc
 
-from src.reports.model import OverviewReport, db_session, db, Severity, Project, ProjectReport, report_entries
+from src.model import OverviewReport, db_session, db, Severity, Project, ProjectReport, report_entries
 import subprocess
 
 mailing_list = 'Source Clear Scans <Source Clear Scans>'

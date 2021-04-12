@@ -2,7 +2,7 @@ import csv
 
 from pony.orm import db_session
 
-from src.reports.model import db, Vulnerability, Project
+from src.model import db, Vulnerability, Project
 from src.reports.utils.emun import Issue, Severity
 from src.reports.utils.utils import convert_to_datetime, int_check, is_public
 
